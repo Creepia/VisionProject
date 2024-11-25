@@ -1,0 +1,37 @@
+@startuml GeneratePyramids
+skinparam conditionStyle InsideDiamond
+skinparam ConditionEndStyle hline
+
+:start;
+:**input**: img, kernel_size=5, sigma=2;
+
+partition Initial Setup {
+    :if img is of type uint8 then;
+    if (img is of type uint8?) then (True)
+        :img = double(img) / 255.0;
+    endif
+    :[m, n, c] = size(img);
+    :max_n = ceil(log2(m) - 3);
+    :g_pyramid = {img};
+    :l_pyramid = {};
+    :gaussian_kernel = fspecial('gaussian', [kernel_size, kernel_size], sigma);
+}
+
+partition Pyramid Generation Loop {
+    :i = 1;
+    while (i <= max_n?) is (True)
+        :img_blur = imfilter(img, gaussian_kernel, "replicate", "same", "conv");
+        :img_downsampled = imresize(img_blur, 0.5, "nearest");
+        :upsample_size = size(img);
+        :upsample_size = upsample_size(1:2);
+        :img_upsampled = imresize(img_downsampled, upsample_size, "nearest");
+        :g_pyramid(i + 1) = {img_downsampled};
+        :l_pyramid(i) = {img - img_upsampled};
+        :img = img_downsampled;
+        :i++;
+    endwhile (False)
+    :l_pyramid(max_n + 1) = {img};
+}
+
+:**output**: g_pyramid, l_pyramid;
+@enduml
