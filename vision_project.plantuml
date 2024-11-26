@@ -57,12 +57,12 @@ partition display_image_pyramid {
     :pm = margin]
     :Create a figure]
     while (i <= N) is (True)
-        :Display subplot with imgs{i}]
+        :Display the image{i} in the first row of subplot]
         :Add text annotation with size information]
         :Update pm = pm + 1/N + margin]
         :i++]
     endwhile (False)
-    :Display the complete canvas in a subplot]
+    :Display the concatnated pyramid in the second row of subplot]
     :Set figure position with [100, 100, cw, ch*1.3] ]
 
 }
