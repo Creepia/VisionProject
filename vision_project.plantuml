@@ -6,7 +6,7 @@ skinparam ConditionEndStyle hline
 :**input**: img, kernel_size=5, sigma=2/
 
 partition Initial Setup {
-    if (img is of type uint8?) then (True)
+    if (img value type is uint8?) then (True)
         :img = double(img) / 255.0]
     endif
     :[m, n, c] = size(img) ]
@@ -31,7 +31,7 @@ partition Pyramid Generation Loop {
     endwhile (False)
     :l_pyramid(max_n + 1) = {img} ]
 }
-
+:**Output**: {g_pyramid, l_pyramid} /
 
 
 partition display_image_pyramid {
