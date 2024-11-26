@@ -1,0 +1,22 @@
+@startuml MaskBlendImage
+skinparam conditionStyle InsideDiamond
+skinparam ConditionEndStyle hline
+
+:start;
+:**input**: img1, img2, mask, kernel_size, sigma/
+
+:[g_pyr1, l_pyr1] = generate_pyramids(img1, 'kernel_size', kernel_size, 'sigma', sigma)\n[g_pyr2, l_pyr2] = generate_pyramids(img2, 'kernel_size', kernel_size, 'sigma', sigma)\n[g_mask_pyr l_mask_pyr]= generate_pyramids(mask, 'kernel_size',kernel_size,'sigma',sigma)|
+:N=size(g_pyr1)]
+
+partition Build Blend Pyramid With Mask {
+    :blend_pyr={} ]
+    :i = 1]
+    while (i <= N?) is (True)
+        :blend_pyr(i,:) ={ g_mask_pyr{i}.*l_pyr1{i} + (1-g_mask_pyr{i}).*l_pyr2{i} } ]
+        :i++ ]
+    endwhile (False)
+    :output=rebuild_from_pyramid(blend_pyr) |
+}
+:**Output**: output /
+:end;
+@enduml

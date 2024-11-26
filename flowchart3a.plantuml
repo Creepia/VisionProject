@@ -1,0 +1,30 @@
+@startuml LRBlendImage
+skinparam conditionStyle InsideDiamond
+skinparam ConditionEndStyle hline
+
+:start;
+:**input**: img1, img2, window, kernel_size, sigma/
+
+:[g_pyr1, l_pyr1] = generate_pyramids(img1, 'kernel_size', kernel_size, 'sigma', sigma)\n[g_pyr2, l_pyr2] = generate_pyramids(img2, 'kernel_size', kernel_size, 'sigma', sigma)|
+:N=size(g_pyr1)]
+
+partition Build Blend Pyramid {
+    :i = 1]
+    while (i <= N?) is (True)
+        :[m, n, c] = size(l_pyr1{i}) ]
+        :start_point=round(n*window(1))\nstop_point=round(n*window(2)) ]
+
+        :blend_weight = zeros(m, n)\nblend_weight(:, start_point:stop_point) = repmat(linspace(0, 1, stop_point-start_point+1), m, 1)\nblend_weight(:, stop_point:n) = 1 ]
+
+        if (c>1?) then (True)
+            :blend_weight = repmat(blend_weight, [1, 1, c]) ]
+        else (False)
+        endif
+        :blend_pyr(i,:) = { (1 - blend_weight) .* double(l_pyr1{i}) + blend_weight .* double(l_pyr2{i}) } ]
+        :i++ ]
+    endwhile (False)
+    :output=rebuild_from_pyramid(blend_pyr) |
+}
+:**Output**: output /
+:end;
+@enduml

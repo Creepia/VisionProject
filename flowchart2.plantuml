@@ -1,70 +1,38 @@
-@startuml GeneratePyramids
+@startuml HybridImage
 skinparam conditionStyle InsideDiamond
 skinparam ConditionEndStyle hline
 
+
 :start;
-:**input**: img, kernel_size=5, sigma=2/
+:**input**: img1, img2, N, kernel_size, sigma/
 
-partition Initial Setup {
-    if (img value type is uint8?) then (True)
-        :img = double(img) / 255.0]
-    endif
-    :[m, n, c] = size(img) ]
-    :max_n = ceil(log2(m) - 3) ]
-    :g_pyramid = {img} ]
-    :l_pyramid = {} ]
-    :gaussian_kernel = fspecial('gaussian', [kernel_size, kernel_size], sigma) ]
-}
 
-partition Pyramid Generation Loop {
-    :i = 1;
-    while (i <= max_n?) is (True)
-        :img_blur = imfilter(img, gaussian_kernel, "replicate", "same", "conv") ]
-        :img_downsampled = imresize(img_blur, 0.5, "nearest") ]
-        :upsample_size = size(img) ]
-        :upsample_size = upsample_size(1:2) ]
-        :img_upsampled = imresize(img_downsampled, upsample_size, "nearest") ]
-        :g_pyramid(i + 1) = {img_downsampled} ]
-        :l_pyramid(i) = {img - img_upsampled} ]
-        :img = img_downsampled ]
-        :i++ ]
+:[g_pyr1, l_pyr1] = generate_pyramids(img1, 'kernel_size', kernel_size, 'sigma', sigma)\n[g_pyr2, l_pyr2] = generate_pyramids(img2, 'kernel_size', kernel_size, 'sigma', sigma)|
+
+:hybrid_pyr = cell(size(g_pyr1)); ]
+while (i <= N-1) is (True)
+    :hybrid_pyr{i} = l_pyr2{i} ]
+    :i++]
+endwhile (False)
+
+while (i <= length(g_pyr1)) is (True)
+    :hybrid_pyr{i} = g_pyr1{i} ]
+    :i++]
+endwhile (False)
+
+partition Rebuild From Pyramid{
+    :output = pyr{N} ]
+    :i=N-1]
+    while (i >= 1) is (True)
+        :upscale_size=size(pyr{i}) ]
+        :upscale_size=upscale_size(1:2) ]
+        :output = imresize(output, upscale_size, 'nearest') + pyr{i} ]
+        :i--]
     endwhile (False)
-    :l_pyramid(max_n + 1) = {img} ]
 }
-:**Output**: {g_pyramid, l_pyramid} /
+:**Output**: output/
+
+:end;
 
 
-partition display_image_pyramid {
-
-    :margin=2]
-    :N = size(imgs, 1) ]
-    partition concatenate_image_pyramid {
-        :[m, n, c] = size(imgs{1}) ]
-        :Initialize canvas with zeros of size [m ceil(n*1.5 + margin) c] ]
-        :Place imgs{1} in the leftside of canvas ]
-        
-        :pm = 1]
-        :pn = n + 1 + margin]
-        while (i <= size(imgs, 1)) is (True)
-            :[m, n, c] = size(imgs{i}) ]
-            :Place imgs{i} in canvas at position [pm:pm+m-1, pn:pn+n-1, 1:c] ]
-            :Update pm = pm + m ]
-            :i++ ]
-        endwhile (False)
-    }
-    :[ch, cw, ~] = size(canvas)]
-    :margin = margin / N / cw]
-    :pm = margin]
-    :Create a figure]
-    while (i <= N) is (True)
-        :Display the image{i} in the first row of subplot]
-        :Add text annotation with size information]
-        :Update pm = pm + 1/N + margin]
-        :i++]
-    endwhile (False)
-    :Display the concatnated pyramid in the second row of subplot]
-    :Set figure position with [100, 100, cw, ch*1.3] ]
-
-}
- :end;
 @enduml
