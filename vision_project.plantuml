@@ -36,16 +36,15 @@ partition Pyramid Generation Loop {
 
 partition display_image_pyramid {
 
-    :Input margin/
+    :margin=2]
     :N = size(imgs, 1) ]
     partition concatenate_image_pyramid {
-        :Input margin /
         :[m, n, c] = size(imgs{1}) ]
         :Initialize canvas with zeros of size [m ceil(n*1.5 + margin) c] ]
-        :Place imgs{1} in the canvas ]
+        :Place imgs{1} in the leftside of canvas ]
         
-        :Set pm = 1]
-        :Set pn = n + 1 + margin]
+        :pm = 1]
+        :pn = n + 1 + margin]
         while (i <= size(imgs, 1)) is (True)
             :[m, n, c] = size(imgs{i}) ]
             :Place imgs{i} in canvas at position [pm:pm+m-1, pn:pn+n-1, 1:c] ]
@@ -54,8 +53,8 @@ partition display_image_pyramid {
         endwhile (False)
     }
     :[ch, cw, ~] = size(canvas)]
-    :Calculate margin as margin / N / cw]
-    :Set pm = margin]
+    :margin = margin / N / cw]
+    :pm = margin]
     :Create a figure]
     while (i <= N) is (True)
         :Display subplot with imgs{i}]
